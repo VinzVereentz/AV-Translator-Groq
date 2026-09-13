@@ -1,0 +1,46 @@
+name: Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.x'
+          channel: 'stable'
+      
+      - name: Install dependencies
+        run: flutter pub get
+      
+      - name: Analyze project source code
+        run: flutter analyze
+      
+      - name: Run tests
+        run: flutter test
+        continue-on-error: true
+      
+      - name: Build Web
+        run: flutter build web
+      
+      - name: Build APK
+        run: flutter build apk
+        continue-on-error: true
+      
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: build-artifacts
+          path: |
+            build/web
+            build/app/outputs/apk
+        continue-on-error: true
